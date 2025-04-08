@@ -9,7 +9,30 @@ function CarrelloDellaSpesa() {
     { name: 'Latte', price: 1.0 },
     { name: 'Pasta', price: 0.7 },
     ])
-  
+
+   const [addedProducts, setAddedProducts] = useState([])
+
+   const updateProductQuantity = (product) => {
+    setAddedProducts((prevProducts) =>
+      prevProducts.map((addedProduct) => {
+        if (addedProduct.name === product.name) {
+          return { ...addedProduct, quantity: addedProduct.quantity + 1 };
+        }
+        return addedProduct;
+      })
+    );
+   }
+
+   const addToCart = (product) => {
+    const productExists = addedProducts.some((addedProduct) => addedProduct.name === product.name);
+ 
+    if (!productExists) {
+    setAddedProducts((prevProducts) => [...prevProducts, {...product, quantity: 1} ])
+   }
+   if (productExists) {
+    updateProductQuantity(product);
+   }
+  }
   
   return (
     <>
@@ -18,14 +41,29 @@ function CarrelloDellaSpesa() {
       return (
         <li key={index}>
           <h3>Prodotto {index + 1}</h3>
-          <p><strong>{product.name}</strong></p>
-          <p>Prezzo: {product.price}€</p>
-        </li>
+          <span><strong>{product.name} - </strong></span>
+          <span>Prezzo: {product.price}€ </span>
+          <button onClick={() => addToCart(product)}>Aggiungi al Carrello</button>
+
+        </li> 
       )
     })}
     </ul>
-    
+    {addedProducts.length > 0 && <h2>Carrello della spesa</h2>}
+    <ul>
+      {addedProducts.map((product, index) => {
+        return (
+          <li key={index}>
+            <h3>Prodotto {index + 1}</h3>
+            <span><strong>{product.name} - </strong></span>
+            <span>Prezzo: {product.price}€</span>
+            <p>Quantità: {product.quantity}</p>
+          </li>
+        )
+      })}
+    </ul>
+
     </>
   );
 }
-export default CarrelloDellaSpesa;
+export default CarrelloDellaSpesa
