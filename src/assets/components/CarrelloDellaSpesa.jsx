@@ -22,6 +22,15 @@ function CarrelloDellaSpesa() {
       })
     );
    }
+   const removeFromCart = (product) => {
+    setAddedProducts ((prevProducts) => {
+      const productExists = prevProducts.some((addedProduct) => addedProduct.name === product.name);
+
+      if(productExists) {
+        return prevProducts.filter((addedProduct) => addedProduct.name !== product.name);
+      }
+    })
+   }
 
    const addToCart = (product) => {
     const productExists = addedProducts.some((addedProduct) => addedProduct.name === product.name);
@@ -43,13 +52,15 @@ function CarrelloDellaSpesa() {
           <h3>Prodotto {index + 1}</h3>
           <span><strong>{product.name} - </strong></span>
           <span>Prezzo: {product.price}€ </span>
-          <button onClick={() => addToCart(product)}>Aggiungi al Carrello</button>
+          <button onClick={() => addToCart(product)}>Aggiungi al Carrello </button>
+
+          <button onClick={() => removeFromCart(product)}> Rimuovi dal carrello</button>
 
         </li> 
       )
     })}
     </ul>
-    {addedProducts.length > 0 && <h2>Carrello della spesa</h2>}
+    {addedProducts.length > 0 && <h2>Carrello</h2>}
     <ul>
       {addedProducts.map((product, index) => {
         return (
@@ -62,7 +73,7 @@ function CarrelloDellaSpesa() {
         )
       })}
     </ul>
-
+    {addedProducts.length > 0 && <h3>Totale: {addedProducts.reduce((acc, product) => acc + product.price * product.quantity, 0)}€</h3>}
     </>
   );
 }
