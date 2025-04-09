@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useReducer } from "react";
 
 
 function CarrelloDellaSpesa() {
@@ -10,7 +10,33 @@ function CarrelloDellaSpesa() {
     { name: 'Pasta', price: 0.7 },
     ])
 
-    const [addedProducts, setAddedProducts] = useState([]);
+    const [addedProducts, setAddedProducts] = useState([]); 
+    const [cart, dispatchCart] = useReducer(cartReducer, initialCart);
+
+    function cartReducer(cart, action) {
+      switch (action.type) {
+        case 'ADD_ITEM':
+          return [...cart, {...action.payload.product, quantity: 1}];
+        case 'REMOVE_ITEM':
+          return cart.filter(item => item.name !== action.payload.product.name);
+        case 'UPDATE_QUANTITY':
+          const parsedQuantity = Math.floor(Number(action.payload.newQuantity));
+          const updatedProducts = cart.map((item) => {
+            if (item.name === action.payload.product.name && !parsedQuantity){
+              return {...item, quantity: item.quantity + 1}
+            } 
+            else if (!isNaN(parsedQuantity) && parsedQuantity >= 1 && item.name === action.payload.product.name){
+              return {...item, quantity: parsedQuantity}
+    
+            }
+            return item
+          })
+          return updatedProducts;
+        default:
+          return cart;
+      }
+    }
+
 
     
 
@@ -20,7 +46,7 @@ function CarrelloDellaSpesa() {
     }
     
     const updateProductQuantity = (product, newQuantity) =>{
-      const parsedQuantity = Math.floor(number(newQuantity));
+      const parsedQuantity = Math.floor(Number(newQuantity));
       const updatedProducts = addedProducts.map((item) => {
         if (item.name === product.name && !parsedQuantity){
           return {...item, quantity: item.quantity + 1}
