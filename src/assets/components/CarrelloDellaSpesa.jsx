@@ -10,70 +10,83 @@ function CarrelloDellaSpesa() {
     { name: 'Pasta', price: 0.7 },
     ])
 
-   const [addedProducts, setAddedProducts] = useState([])
+    const [addedProducts, setAddedProducts] = useState([]);
 
-   const updateProductQuantity = (product) => {
-    setAddedProducts((prevProducts) =>
-      prevProducts.map((addedProduct) => {
-        if (addedProduct.name === product.name) {
-          return { ...addedProduct, quantity: addedProduct.quantity + 1 };
+    
+
+    // funzioni:
+    const addToCart = (product) => {
+      setAddedProducts((prev) => [...prev, {...product, quantity: 1}])
+    }
+    
+    const updateProductQuantity = (product, newQuantity) =>{
+      const parsedQuantity = Math.floor(number(newQuantity));
+      const updatedProducts = addedProducts.map((item) => {
+        if (item.name === product.name && !parsedQuantity){
+          return {...item, quantity: item.quantity + 1}
+        } 
+        else if (!isNaN(parsedQuantity) && parsedQuantity >= 1 && item.name === product.name){
+          return {...item, quantity: parsedQuantity}
+
         }
-        return addedProduct;
+        return item
       })
-    );
-   }
-   const removeFromCart = (product) => {
-    setAddedProducts ((prevProducts) => {
-      const productExists = prevProducts.some((addedProduct) => addedProduct.name === product.name);
-
-      if(productExists) {
-        return prevProducts.filter((addedProduct) => addedProduct.name !== product.name);
-      }
-    })
-   }
-
-   const addToCart = (product) => {
-    const productExists = addedProducts.some((addedProduct) => addedProduct.name === product.name);
  
-    if (!productExists) {
-    setAddedProducts((prevProducts) => [...prevProducts, {...product, quantity: 1} ])
-   }
-   if (productExists) {
-    updateProductQuantity(product);
-   }
-  }
-  
+
+      setAddedProducts(updatedProducts)
+    }
+
+    // const updateProductQuantityInput = (productName, newQuantity) => {
+    //   const parsed = parseInt(newQuantity);
+    //   if (!isNaN(parsed) && parsed >= 1) {
+    //     const updated = addedProducts.map((item) =>
+    //       item.name === productName
+    //         ? { ...item, quantity: parsed }
+    //         : item
+    //     );
+    //     setAddedProducts(updated);
+    //   }
+    // };
+
+    const removeFromCart = (product) => {
+      const updatedProducts = addedProducts.filter((item) => item.name !== product.name)
+      setAddedProducts(updatedProducts)
+    }
+
+    const totalPrice = () => {
+      return addedProducts.reduce((acc, item) => acc + (item.price * item.quantity),0)
+    }
+
   return (
     <>
     <ul>
-    {products.map((product, index) => {
-      return (
-        <li key={index}>
-          <h3>Prodotto {index + 1}</h3>
-          <span><strong>{product.name} - </strong></span>
-          <span>Prezzo: {product.price}€ </span>
-          <button onClick={() => addToCart(product)}>Aggiungi al Carrello </button>
+      {products.map((product, index) => {
+        return (
+          <li key={index}> 
+            <p><strong>{product.name}</strong></p>
+            <p><strong>Prezzo: </strong> {product.price}€</p> 
+            <button onClick={!addedProducts.some((item) => item.name === product.name) ?() => addToCart(product) : () =>  updateProductQuantity(product) }>Aggiungi al carrello</button>
+            <button onClick={() => removeFromCart(product)}> Rimuovi dal carrello </button>
+          </li>
+        )
 
-          <button onClick={() => removeFromCart(product)}> Rimuovi dal carrello</button>
-
-        </li> 
-      )
-    })}
+      })}
     </ul>
-    {addedProducts.length > 0 && <h2>Carrello</h2>}
+    <h3>Carrello:</h3>
     <ul>
       {addedProducts.map((product, index) => {
         return (
-          <li key={index}>
-            <h3>Prodotto {index + 1}</h3>
-            <span><strong>{product.name} - </strong></span>
-            <span>Prezzo: {product.price}€</span>
-            <p>Quantità: {product.quantity}</p>
+          <li key={index}> 
+            <p><strong>{product.name}</strong></p>
+            <p><strong>Prezzo: </strong> {product.price}€</p>
+            <p><strong>Quantità: </strong> <input type="number" value={product.quantity ? product.quantity : 0} onChange={(e) => updateProductQuantity(product ,e.target.value)}/></p> 
           </li>
         )
       })}
     </ul>
-    {addedProducts.length > 0 && <h3>Totale: {addedProducts.reduce((acc, product) => acc + product.price * product.quantity, 0)}€</h3>}
+    <h3>Totale: {totalPrice()}</h3>
+    
+
     </>
   );
 }
